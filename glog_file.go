@@ -40,12 +40,26 @@ var logDirs []string
 // See createLogDirs for the full list of possible destinations.
 var logDir = flag.String("log_dir", "", "If non-empty, write log files in this directory")
 
+func GetCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		fmt.Println(err)
+		//beego.Debug(err)
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
+
 func createLogDirs() {
 	if *logDir != "" {
 		logDirs = append(logDirs, *logDir)
 	}
-	logDirs = append(logDirs, os.TempDir())
+	if err := os.MkdirAll(GetCurrentDirectory()+"/logs/", 0777); err != nil {
+		fmt.Println("MkdirAll error")
+		return
+	}
+	logDirs = append(logDirs, /*os.TempDir()*/GetCurrentDirectory()+"/logs/")
 }
+
 
 var (
 	pid      = os.Getpid()
